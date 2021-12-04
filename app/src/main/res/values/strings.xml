@@ -8,7 +8,7 @@
     <string name="button_save">Сохранить</string>
     <string name="button_skip">Пропустить</string>
     <string name="button_survey">Пройти опрос</string>
-    <string name="button_delete">Очистить</string>
+    <string name="button_delete">Сбросить всё</string>
 
 
     <string-array name="mood_arrays">

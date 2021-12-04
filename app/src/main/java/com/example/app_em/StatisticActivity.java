@@ -32,11 +32,23 @@ public class StatisticActivity extends AppCompatActivity {
 
         // ЭТО ТУТ ВРЕМЕННО НЕ ЗНАЮ КУДА ДЕТЬ
         List<List<String>> data = getDataFromDB();
-//        startActivity(intent);
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-//        setContentView(R.layout.activity_survey);
 
+    }
+
+    public void onClickDelete(View view) {
+        this.view = view;
+        dbHelper = new DBHelper(this);
+
+        // подключаемся к БД
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Log.d(LOG_TAG, "--- Clear EmotionDB: ---");
+        // удаляем все записи
+        int clearCount = db.delete("EmotionDB", null, null);
+        Log.d(LOG_TAG, "deleted rows count = " + clearCount);
+        dbHelper.close();
     }
 
     public List<List<String>> getDataFromDB(){
@@ -83,9 +95,10 @@ public class StatisticActivity extends AppCompatActivity {
                                 ", time = " + c.getString(time_db) +
                                 ", emotion = " + c.getString(emotion_db));
             } while (c.moveToNext());
-        } else
+        } else {
             Log.d(LOG_TAG, "0 rows");
             System.out.println(java.util.Arrays.toString(data.toArray()));
+        }
         c.close();
         dbHelper.close();
 

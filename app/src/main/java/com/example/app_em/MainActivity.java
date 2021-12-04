@@ -75,19 +75,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void onClickDelete(View view) {
-        this.view = view;
-        dbHelper = new DBHelper(this);
-
-        // подключаемся к БД
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Log.d(LOG_TAG, "--- Clear EmotionDB: ---");
-        // удаляем все записи
-        int clearCount = db.delete("EmotionDB", null, null);
-        Log.d(LOG_TAG, "deleted rows count = " + clearCount);
-        dbHelper.close();
-    }
-
 
     @Override
     protected void onDestroy(){
