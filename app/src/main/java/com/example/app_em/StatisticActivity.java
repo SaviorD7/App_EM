@@ -29,7 +29,9 @@ public class StatisticActivity extends AppCompatActivity {
     {
         this.view = view;
 //        Intent intent = new Intent(this, StatisticActivity.class);
-        getDataFromDB();
+
+        // ЭТО ТУТ ВРЕМЕННО НЕ ЗНАЮ КУДА ДЕТЬ
+        List<List<String>> data = getDataFromDB();
 //        startActivity(intent);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
@@ -37,7 +39,7 @@ public class StatisticActivity extends AppCompatActivity {
 
     }
 
-    public void getDataFromDB(){
+    public List<List<String>> getDataFromDB(){
         dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         List<List<String>> data = new ArrayList<List<String>>();
@@ -86,6 +88,8 @@ public class StatisticActivity extends AppCompatActivity {
             System.out.println(java.util.Arrays.toString(data.toArray()));
         c.close();
         dbHelper.close();
+
+        return  data;
 
     }
 
