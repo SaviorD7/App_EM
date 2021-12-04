@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Emotions controller</string>
+    <string name="title_home">Statistic</string>
+    <string name="mood_dynamic">Динамика настроения</string>
+
+    <string name="fragment_home">Ежедневный опрос</string>
+    <string name="home_mood">Оцените ваше настроение сегодня</string>
+    <string name="button_save">Сохранить</string>
+    <string name="button_skip">Пропустить</string>
+    <string name="button_survey">Пройти опрос</string>
+    <string name="button_delete">Очистить</string>
+
+
+    <string-array name="mood_arrays">
+        <item>Лучше всех!</item>
+        <item>Отлично!</item>
+        <item>Хорошо</item>
+        <item>Нормально</item>
+        <item>Бывало и лучше</item>
+        <item>Плохо</item>
+    </string-array>
+
+    <string name="dropdown">...</string>
+
+
+
+</resources>
