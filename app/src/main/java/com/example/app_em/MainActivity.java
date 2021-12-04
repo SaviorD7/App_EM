@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         Date date = Calendar.getInstance().getTime();
         //Дата и время
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        DateFormat timeFormat = new SimpleDateFormat("hh:mm:ss");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
         String strDate = dateFormat.format(date);
         String strTime = timeFormat.format(date);
 

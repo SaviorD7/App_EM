@@ -16,5 +16,5 @@ public enum Emotions {
         this.label = label;
         this.decode = decode;
     }
-        
+
 }

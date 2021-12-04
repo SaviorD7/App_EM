@@ -40,9 +40,8 @@ public class StatisticActivity extends AppCompatActivity {
     public void getDataFromDB(){
         dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-        List<ArrayList<String>> data = new ArrayList<>();
-        List<ArrayList<String>> current_data = new ArrayList<>();
+        List<List<String>> data = new ArrayList<List<String>>();
+        List<String> current_data = new ArrayList<>();
 
 
         ArrayList<String> ID;
@@ -66,19 +65,14 @@ public class StatisticActivity extends AppCompatActivity {
             int emotion_db = c.getColumnIndex("emotion");
 
             do {
-                ID = ID = new ArrayList<String>();
-                date = new ArrayList<String>();
-                time = new ArrayList<String>();
-                emotion = new ArrayList<String>();
+                current_data.add(c.getString(ID_db));
+                current_data.add(c.getString(date_db));
+                current_data.add(c.getString(time_db));
+                current_data.add(c.getString(emotion_db));
 
-                ID.add(c.getString(ID_db));
-                date.add(c.getString(date_db));
-                time.add(c.getString(time_db));
-                emotion.add(c.getString(emotion_db));
-                data.add(ID);
-                data.add(date);
-                data.add(time);
-                data.add(emotion);
+                data.add(current_data);
+                current_data = new ArrayList<>();
+
 
                 // получаем значения по номерам столбцов и пишем все в лог
                 Log.d(LOG_TAG,
