@@ -30,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_survey);
-
-//        setContentView(R.layout.activity_main);
     }
 
     public void onClickSave(View view) {
@@ -61,7 +59,15 @@ public class MainActivity extends AppCompatActivity {
 
         cv.put("date", strDate);
         cv.put("time", strTime);
-        cv.put("emotion", String.valueOf(selectedView));
+
+        int emotionInt = getCode(String.valueOf(selectedView).trim());
+        if (emotionInt != -1)
+        {
+            // ИЗМЕНИТЬ ФОРМАТ НА INT В БД
+            cv.put("emotion", emotionInt);
+        }
+        
+//        cv.put("emotion", String.valueOf(selectedView));
 
         long rowID = db.insert("EmotionDB", null, cv);
         Log.d(LOG_TAG, "row inserted, ID = " + rowID);
@@ -106,5 +112,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart(){
         super.onRestart();
         Log.d(TAG, "onRestart");
+    }
+
+    public Integer getCode(String str) {
+        if (str.equals(Emotions.BEST.decode))
+        {
+            return Emotions.BEST.label;
+        }
+        else if (str.equals(Emotions.PERFECT.decode))
+        {
+            return Emotions.PERFECT.label;
+        }
+        else if (str.equals(Emotions.GOOD.decode))
+        {
+            return Emotions.GOOD.label;
+        }
+        else if (str.equals(Emotions.NORMAL.decode))
+        {
+            return Emotions.NORMAL.label;
+        }
+        else if (str.equals(Emotions.SOSO.decode))
+        {
+            return Emotions.SOSO.label;
+        }
+        else if (str.equals(Emotions.BAD.decode))
+        {
+            return Emotions.BAD.label;
+        }
+        else
+        {
+            return -1;
+        }
     }
 }

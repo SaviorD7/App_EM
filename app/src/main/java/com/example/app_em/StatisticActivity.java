@@ -5,9 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,25 +23,101 @@ public class StatisticActivity extends AppCompatActivity {
     private final static String TAG = "StatisticActivity";
     private static final String LOG_TAG = "Logs";
     private View view;
+    float i = 0;
+
     DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        LineChart chart = (LineChart) findViewById(R.id.any_chart_view);
+
+        LineData data = new LineData(getData());
+        chart.setData(data);
+        chart.animateXY(2000, 2000);
+        chart.invalidate();
+    }
+
+    public ArrayList getData(){
+        dbHelper = new DBHelper(this);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        ArrayList current_data = new ArrayList();
+
+        Log.d(LOG_TAG, "--- Rows in EmotionDB: ---");
+        // делаем запрос всех данных из таблицы mytable, получаем Cursor
+        Cursor c = db.query("EmotionDB", null, null, null, null, null, null);
+
+        if (c.moveToFirst()) {
+
+            // определяем номера столбцов по имени в выборке
+            int ID_db = c.getColumnIndex("id");
+            int date_db = c.getColumnIndex("date");
+            int time_db = c.getColumnIndex("time");
+            int emotion_db = c.getColumnIndex("emotion");
+
+            do {
+                // TODO: заменить i на Date
+//                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//                Date DBdate = new Date();
+//
+//                try {
+//                    DBdate = dateFormat.parse(c.getString(date_db));
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
+//
+//                Entry entry = new Entry(DBdate, c.getInt(emotion_db));
+
+                Entry entry = new Entry(i, c.getInt(emotion_db));
+                i++;
+                current_data.add(entry);
+
+                // получаем значения по номерам столбцов и пишем все в лог
+                Log.d(LOG_TAG,
+                        "ID = " + c.getInt(ID_db) +
+                                ", date = " + c.getString(date_db) +
+                                ", time = " + c.getString(time_db) +
+                                ", emotion = " + c.getString(emotion_db));
+            } while (c.moveToNext());
+        } else {
+            Log.d(LOG_TAG, "0 rows");
+            System.out.println(java.util.Arrays.toString(current_data.toArray()));
+        }
+        c.close();
+        dbHelper.close();
+
+        LineDataSet dataSet = new LineDataSet(current_data, "Emotions");
+        dataSet.setColor(Color.rgb(0, 155, 0));
+
+        ArrayList dataSets = new ArrayList();
+        dataSets.add(dataSet);
+
+        return dataSets;
+    }
+
+    private ArrayList getXAxisValues() {
+        ArrayList xAxis = new ArrayList();
+        xAxis.add("JAN");
+        xAxis.add("FEB");
+        xAxis.add("MAR");
+        xAxis.add("APR");
+        xAxis.add("MAY");
+        xAxis.add("JUN");
+        return xAxis;
     }
 
     public void onClickSurvey(View view)
     {
         this.view = view;
-//        Intent intent = new Intent(this, StatisticActivity.class);
 
         // ЭТО ТУТ ВРЕМЕННО НЕ ЗНАЮ КУДА ДЕТЬ
-        List<List<String>> data = getDataFromDB();
+//        List<List<String>> data = getDataFromDB();
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-
     }
 
     public void onClickDelete(View view) {
