@@ -45,13 +45,26 @@ public class StatisticActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SetChart();
+    }
+
+    public void SetChart()
+    {
         LineChart chart = (LineChart) findViewById(R.id.any_chart_view);
 
         IAxisValueFormatter formatter = new IAxisValueFormatter()
         {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return dateMap.get(value);
+                String result = dateMap.get(value);
+                if (result == null)
+                {
+                    return "-";
+                }
+                else
+                {
+                    return result;
+                }
             }
         };
 
@@ -66,7 +79,7 @@ public class StatisticActivity extends AppCompatActivity {
         chart.invalidate();
     }
 
-    public ArrayList getData(){
+    public ArrayList getData() {
         dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         ArrayList current_data = new ArrayList();
@@ -95,16 +108,14 @@ public class StatisticActivity extends AppCompatActivity {
 //                    e.printStackTrace();
 //                }
 
-                if (c.getString(emotion_db) != null && !c.getString(emotion_db).isEmpty())
-                {
-                    String emotionString = c.getString(emotion_db);
-                    Integer emotionInt = getEmotionsCode(emotionString);
-                    if (emotionInt != -1) {
+                if (c.getString(emotion_db) != null && !c.getString(emotion_db).isEmpty()) {
+                    Integer emotionInt = c.getInt(emotion_db);
+
+                    // TODO: check emoInt
                         dateMap.put(i, c.getString(date_db));
                         Entry entry = new Entry(i, emotionInt);
                         i++;
                         current_data.add(entry);
-                    }
                 }
 
                 // получаем значения по номерам столбцов и пишем все в лог
@@ -120,13 +131,16 @@ public class StatisticActivity extends AppCompatActivity {
         }
         c.close();
         dbHelper.close();
+        ArrayList dataSets = new ArrayList();
 
-        LineDataSet dataSet = new LineDataSet(current_data, "Emotions");
+
+        if (!current_data.isEmpty()){
+            LineDataSet dataSet = new LineDataSet(current_data, "Emotions");
         dataSet.setColor(Color.rgb(0, 155, 0));
         dataSet.disableDashedLine();
 
-        ArrayList dataSets = new ArrayList();
         dataSets.add(dataSet);
+    }
 
         return dataSets;
     }
@@ -150,6 +164,8 @@ public class StatisticActivity extends AppCompatActivity {
         int clearCount = db.delete("EmotionDB", null, null);
         Log.d(LOG_TAG, "deleted rows count = " + clearCount);
         dbHelper.close();
+
+        SetChart();
     }
 
     @Override
@@ -187,7 +203,6 @@ public class StatisticActivity extends AppCompatActivity {
     public Integer getEmotionsCode(String str) {
         if (str.equals(Emotions.BEST.decode))
         {
-            Log.d(LOG_TAG, "1");
             return Emotions.BEST.label;
         }
         else if (str.equals(Emotions.PERFECT.decode))
