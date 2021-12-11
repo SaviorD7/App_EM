@@ -1,7 +1,9 @@
 package com.example.app_em;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,9 +11,14 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -20,6 +27,7 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -37,6 +45,10 @@ public class StatisticActivity extends AppCompatActivity {
     Float i = Float.valueOf(0);
 
     DBHelper dbHelper;
+
+    Spinner spinnerMood;
+    EditText timeStart;
+    EditText timeStop;
 
     HashMap<Float, String> dateMap = new HashMap<Float, String>();
 
@@ -71,10 +83,13 @@ public class StatisticActivity extends AppCompatActivity {
         LineData data = new LineData(getData());
         XAxis xAxis = chart.getXAxis();
         xAxis.setGranularity(1f);
-        xAxis.setLabelRotationAngle(90f);
+        xAxis.setLabelRotationAngle(60f);
         xAxis.setValueFormatter(formatter);
 
         chart.setData(data);
+        Description desc = new Description();
+        desc.setText("");
+        chart.setDescription(desc);
         chart.animateXY(2000, 2000);
         chart.invalidate();
     }
@@ -138,11 +153,66 @@ public class StatisticActivity extends AppCompatActivity {
             LineDataSet dataSet = new LineDataSet(current_data, "Emotions");
         dataSet.setColor(Color.rgb(0, 155, 0));
         dataSet.disableDashedLine();
+        dataSet.setDrawHighlightIndicators(false);
+        dataSet.setDrawIcons(false);
+        dataSet.setForm(Legend.LegendForm.EMPTY);
+        dataSet.setLabel("");
 
         dataSets.add(dataSet);
     }
 
         return dataSets;
+    }
+
+    public void onClickCalculate(View view)
+    {
+        this.view = view;
+
+        spinnerMood = (Spinner) findViewById(R.id.spinner2);
+        String selectedMood = String.valueOf(spinnerMood.getSelectedItem());
+
+        timeStart = (EditText) findViewById(R.id.editTextTime);
+        String selectedStartString = timeStart.getText().toString();
+
+        timeStop = (EditText) findViewById(R.id.editTextTime2);
+        String selectedStopString = timeStop.getText().toString();
+
+        try {
+            DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
+            Date selectedStart = formatter.parse(selectedStartString);
+            Date selectedStop = formatter.parse(selectedStopString);
+            Log.d(TAG, "START TIME: " + selectedStartString);
+            Log.d(TAG, "STOP TIME: " + selectedStopString);
+        }
+        catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
+
+        // достать данные из бд по запросу
+        // вычислить верочтность
+
+        createOneButtonAlertDialog("", selectedStartString, selectedStopString, selectedMood);
+    }
+
+    private void createOneButtonAlertDialog(String probability, String startTime, String stopTime, String mood) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(StatisticActivity.this);
+
+        builder.setTitle("Статистика настроения");
+        builder.setMessage("бла бла бла");
+
+        builder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        // showMessage("Нажали ОК");
+                    }
+                });
+
+        builder.show();
+    }
+
+    private void showMessage(String textInMessage) {
+        Toast.makeText(getApplicationContext(), textInMessage, Toast.LENGTH_LONG).show();
     }
 
     public void onClickSurvey(View view)

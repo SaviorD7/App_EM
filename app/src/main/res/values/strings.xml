@@ -2,6 +2,11 @@
     <string name="app_name">Emotions controller</string>
     <string name="title_home">Statistic</string>
     <string name="mood_dynamic">Динамика настроения</string>
+    <string name="calculate_dynamic">Вычислить статистику настроения</string>
+
+    <string name="calculate_mood">Настроение</string>
+    <string name="calculate_timeStart">Начальное время</string>
+    <string name="calculate_timeStop">Конечное время</string>
 
     <string name="fragment_home">Ежедневный опрос</string>
     <string name="home_mood">Оцените ваше настроение сегодня</string>
@@ -9,6 +14,16 @@
     <string name="button_skip">Пропустить</string>
     <string name="button_survey">Пройти опрос</string>
     <string name="button_delete">Сбросить всё</string>
+    <string name="button_calculate">Вычислить</string>
+
+    <string-array name="time_arrays">
+        <item>00:00 - 03:00</item>
+        <item>03:00 - 06:00</item>
+        <item>06:00 - 09:00</item>
+        <item>Нормально</item>
+        <item>Бывало и лучше</item>
+        <item>Плохо</item>
+    </string-array>
 
 
     <string-array name="mood_arrays">
