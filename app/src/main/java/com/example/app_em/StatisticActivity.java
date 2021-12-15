@@ -3,6 +3,7 @@ package com.example.app_em;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -200,6 +201,13 @@ public class StatisticActivity extends AppCompatActivity {
         builder.setTitle("Статистика настроения");
         builder.setMessage("бла бла бла");
 
+        //TODO:
+            // Подставить старт ,  стоп тайм и ID эмоции
+            // Вернуть данные в виде ?
+            // проверка вводимых данных ?
+        onClickQuery("10:00:00", "15:00:00", 0);
+
+
         builder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
@@ -233,6 +241,52 @@ public class StatisticActivity extends AppCompatActivity {
         // удаляем все записи
         int clearCount = db.delete("EmotionDB", null, null);
         Log.d(LOG_TAG, "deleted rows count = " + clearCount);
+        dbHelper.close();
+
+        SetChart();
+    }
+
+    @SuppressLint("Range")
+    public void onClickQuery(String startTime, String stopTime, Integer EmotionID) {
+        dbHelper = new DBHelper(this);
+
+        //DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+        //String firstTimeString = timeFormat.format(firstTime);
+        //String secondTimeString = timeFormat.format(SecondTime);
+
+        Cursor c = null;
+
+
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        Log.d(LOG_TAG, "--- Connected EmotionDB: ---");
+
+        c = db.query(
+                "EmotionDB",null,
+                "emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime},
+                null,null,null);
+
+        if (c != null) {
+            if (c.moveToFirst()) {
+                String str;
+                do {
+                    str = "";
+                    for (String cn : c.getColumnNames()) {
+                        str = str.concat(cn + " = "
+                                + c.getString(c.getColumnIndex(cn)) + "; ");
+                    }
+                    Log.d(LOG_TAG, str);
+
+                } while (c.moveToNext());
+            }
+            c.close();
+        } else
+            Log.d(LOG_TAG, "Cursor is null");
+
+
+
+
+
         dbHelper.close();
 
         SetChart();
