@@ -190,8 +190,11 @@ public class StatisticActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // достать данные из бд по запросу
+        //TODO:
+        // Вернуть данные в виде ?
+        // проверка вводимых данных ?
         // вычислить верочтность
+        onClickQuery(selectedStartString, selectedStopString, getEmotionsCode(selectedMood));
 
         createOneButtonAlertDialog("", selectedStartString, selectedStopString, selectedMood);
     }
@@ -201,13 +204,6 @@ public class StatisticActivity extends AppCompatActivity {
 
         builder.setTitle("Статистика настроения");
         builder.setMessage("бла бла бла");
-
-        //TODO:
-            // Подставить старт ,  стоп тайм и ID эмоции
-            // Вернуть данные в виде ?
-            // проверка вводимых данных ?
-        onClickQuery("10:00:00", "23:00:00", 0);
-
 
         builder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -250,11 +246,15 @@ public class StatisticActivity extends AppCompatActivity {
     @SuppressLint("Range")
     public void onClickQuery(String startTime, String stopTime, Integer EmotionID) {
         dbHelper = new DBHelper(this);
-
-        //DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-
-        //String firstTimeString = timeFormat.format(firstTime);
-        //String secondTimeString = timeFormat.format(SecondTime);
+        
+//        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+//        Date DBdate = new Date();
+//
+//        try {
+//            DBdate = timeFormat.parse(startTime);
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
 
         Cursor c = null;
 
@@ -283,7 +283,7 @@ public class StatisticActivity extends AppCompatActivity {
                         str = str.concat(cn + " = "
                                 + c.getString(c.getColumnIndex(cn)) + "; ");
                     }
-                    Log.d(LOG_TAG, str);
+                    Log.d(LOG_TAG, "DB request result:" + str);
 
                 } while (c.moveToNext());
             }
@@ -294,9 +294,6 @@ public class StatisticActivity extends AppCompatActivity {
          */
         //Integer count = c.getInt(0);
         Log.d(LOG_TAG, "NUMBER OF DATA IS: " + count);
-
-
-
 
         dbHelper.close();
 
