@@ -22,6 +22,7 @@ import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -47,6 +48,8 @@ public class StatisticActivity extends AppCompatActivity {
     EditText timeStop;
 
     HashMap<Float, String> dateMap = new HashMap<Float, String>();
+    HashMap<Float, String> emoMap = new HashMap<Float, String>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,11 +79,32 @@ public class StatisticActivity extends AppCompatActivity {
             }
         };
 
+        IAxisValueFormatter formatterEmo = new IAxisValueFormatter()
+        {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                String result = emoMap.get(value);
+                if (result == null)
+                {
+                    return "-";
+                }
+                else
+                {
+                    return result;
+                }
+            }
+        };
+
         LineData data = new LineData(getData());
         XAxis xAxis = chart.getXAxis();
         xAxis.setGranularity(1f);
         xAxis.setLabelRotationAngle(60f);
         xAxis.setValueFormatter(formatter);
+
+        YAxis yAxis = chart.getAxisLeft();
+        yAxis.setGranularity(1f);
+//        yAxis.setLabelRotationAngle(60f);
+        yAxis.setValueFormatter(formatterEmo);
 
         chart.setData(data);
         Description desc = new Description();
@@ -121,9 +145,9 @@ public class StatisticActivity extends AppCompatActivity {
 
                 if (c.getString(emotion_db) != null && !c.getString(emotion_db).isEmpty()) {
                     Integer emotionInt = c.getInt(emotion_db);
+                    emoMap.put(i, getEmotions(c.getInt(emotion_db)));
 
-                    // TODO: check emoInt
-                        dateMap.put(i, c.getString(date_db));
+                        dateMap.put(i, c.getString(time_db));
                         Entry entry = new Entry(i, emotionInt);
                         i++;
                         current_data.add(entry);
@@ -164,9 +188,6 @@ public class StatisticActivity extends AppCompatActivity {
     {
         this.view = view;
 
-        spinnerMood = (Spinner) findViewById(R.id.spinner2);
-        String selectedMood = String.valueOf(spinnerMood.getSelectedItem());
-
         timeStart = (EditText) findViewById(R.id.editTextTime);
         String selectedStartString = timeStart.getText().toString();
 
@@ -174,7 +195,7 @@ public class StatisticActivity extends AppCompatActivity {
         String selectedStopString = timeStop.getText().toString();
 
         try {
-            DateFormat formatter = new SimpleDateFormat("hh:mm:ss a");
+            DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
             Date selectedStart = formatter.parse(selectedStartString);
             Date selectedStop = formatter.parse(selectedStopString);
             Log.d(TAG, "START TIME: " + selectedStartString);
@@ -182,29 +203,53 @@ public class StatisticActivity extends AppCompatActivity {
         }
         catch (java.text.ParseException e) {
             e.printStackTrace();
+            Log.d(TAG, "Неверно введено начальное время.");
+            showError("Неверно введено время.");
+            return;
         }
 
-        //TODO:
-        // Вернуть данные в виде ?
-        // проверка вводимых данных ?
-        // вычислить верочтность
+        if (selectedStartString.isEmpty())
+        {
+            Log.d(TAG, "Неверно введено начальное время.");
+            showError("Неверно введено начальное время.");
+            return;
+        }
+        else if (selectedStopString.isEmpty()) {
+            Log.d(TAG, "Неверно введено конечное время.");
+            showError("Неверно введено конечное время.");
+            return;
+        }
 
-        onClickQuery(selectedStartString, selectedStopString, getEmotionsCode(selectedMood));
+        double mathExpectation = 0;
 
-        createOneButtonAlertDialog("", selectedStartString, selectedStopString, selectedMood);
+        for (int i = 0; i < 6; i++)
+        {
+            float iProbability = onClickQuery(selectedStartString, selectedStopString, i);
+            mathExpectation += iProbability*(i);
+            Log.d(TAG, "Math expectation: " + mathExpectation + " " + iProbability + " " + i);
+        }
+        
+        createOneButtonAlertDialog(selectedStartString, selectedStopString, mathExpectation);
     }
 
-    private void createOneButtonAlertDialog(String probability, String startTime, String stopTime, String mood) {
+    private void createOneButtonAlertDialog(String startTime, String stopTime, double mathExpectation) {
         AlertDialog.Builder builder = new AlertDialog.Builder(StatisticActivity.this);
 
         builder.setTitle("Статистика настроения");
-        builder.setMessage("бла бла бла");
+        int result = (int) Math.round(mathExpectation);
+        String resultEmotion = getEmotions(result);
+        if (resultEmotion == "" || result < 0 || result > 6)
+        {
+            builder.setMessage("Недостаточно данных или данные некоректны.");
+        }
+        else {
+            builder.setMessage("C " + startTime + " до " + stopTime + " скорее всего ваше настроение будет: \n" + resultEmotion);
+        }
 
         builder.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,
                                         int which) {
-                        // showMessage("Нажали ОК");
                     }
                 });
 
@@ -213,6 +258,22 @@ public class StatisticActivity extends AppCompatActivity {
 
     private void showMessage(String textInMessage) {
         Toast.makeText(getApplicationContext(), textInMessage, Toast.LENGTH_LONG).show();
+    }
+
+    private void showError(String errorText) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(StatisticActivity.this);
+
+        builder.setTitle("Ошибка");
+        builder.setMessage(errorText);
+
+        builder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                    }
+                });
+
+        builder.show();
     }
 
     public void onClickSurvey(View view)
@@ -239,36 +300,39 @@ public class StatisticActivity extends AppCompatActivity {
     }
 
     @SuppressLint("Range")
-    public Long onClickQuery(String startTime, String stopTime, Integer EmotionID) {
+    public float onClickQuery(String startTime, String stopTime, Integer EmotionID) {
         dbHelper = new DBHelper(this);
-        
-//        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-//        Date DBdate = new Date();
-//
-//        try {
-//            DBdate = timeFormat.parse(startTime);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
 
         Cursor c = null;
 
-
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Log.d(LOG_TAG, "--- Connected EmotionDB: ---");
+        Log.d(LOG_TAG, "--- Connected EmotionDB: --- ");
 
         String selection;
-        Long count;
-
-        count = DatabaseUtils.queryNumEntries(db, "EmotionDB",
+        Long count = DatabaseUtils.queryNumEntries(db, "EmotionDB",
                 "emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime});
 
+
+        Long allCount = DatabaseUtils.queryNumEntries(db, "EmotionDB",
+                "time between ? AND ?", new String[]{startTime,stopTime});
+
         Log.d(LOG_TAG, "NUMBER OF DATA IS: " + count);
+        Log.d(LOG_TAG, "NUMBER OF ALL DATA IS: " + allCount);
+
+        if (allCount == 0)
+        {
+            Log.d(TAG, "Нет подходящих данных в бд");
+            return 0;
+        }
+
+        float probability;
+        probability = (float)count / allCount;
+        Log.d(LOG_TAG, "PROBABILITY: " + probability + " " + count + " " + allCount + " " + count / allCount);
 
         dbHelper.close();
 
         SetChart();
-        return count;
+        return probability;
     }
 
     @Override
@@ -333,4 +397,36 @@ public class StatisticActivity extends AppCompatActivity {
             return -1;
         }
     }
+
+    public String getEmotions(Integer code) {
+        if (code == 0)
+        {
+            return Emotions.BEST.decode;
+        }
+        else if (code == 1)
+        {
+            return Emotions.PERFECT.decode;
+        }
+        else if (code == 2)
+        {
+            return Emotions.GOOD.decode;
+        }
+        else if (code == 3)
+        {
+            return Emotions.NORMAL.decode;
+        }
+        else if (code == 4)
+        {
+            return Emotions.SOSO.decode;
+        }
+        else if (code == 5)
+        {
+            return Emotions.BAD.decode;
+        }
+        else
+        {
+            return "";
+        }
+    }
+
 }
