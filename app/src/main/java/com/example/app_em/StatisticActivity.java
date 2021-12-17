@@ -22,22 +22,16 @@ import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import java.sql.Time;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 
 public class StatisticActivity extends AppCompatActivity {
 
@@ -194,6 +188,7 @@ public class StatisticActivity extends AppCompatActivity {
         // Вернуть данные в виде ?
         // проверка вводимых данных ?
         // вычислить верочтность
+
         onClickQuery(selectedStartString, selectedStopString, getEmotionsCode(selectedMood));
 
         createOneButtonAlertDialog("", selectedStartString, selectedStopString, selectedMood);
@@ -244,7 +239,7 @@ public class StatisticActivity extends AppCompatActivity {
     }
 
     @SuppressLint("Range")
-    public void onClickQuery(String startTime, String stopTime, Integer EmotionID) {
+    public Long onClickQuery(String startTime, String stopTime, Integer EmotionID) {
         dbHelper = new DBHelper(this);
         
 //        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -267,37 +262,13 @@ public class StatisticActivity extends AppCompatActivity {
 
         count = DatabaseUtils.queryNumEntries(db, "EmotionDB",
                 "emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime});
-        /*
-        c = db.query(
-                "EmotionDB",null,
-                "count(*) WHERE emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime},
-                null,null,null);
-        c.moveToFirst();
-        /*
-        if (c != null) {
-            if (c.moveToFirst()) {
-                String str;
-                do {
-                    str = "";
-                    for (String cn : c.getColumnNames()) {
-                        str = str.concat(cn + " = "
-                                + c.getString(c.getColumnIndex(cn)) + "; ");
-                    }
-                    Log.d(LOG_TAG, "DB request result:" + str);
 
-                } while (c.moveToNext());
-            }
-            c.close();
-        } else
-            Log.d(LOG_TAG, "Cursor is null");
-
-         */
-        //Integer count = c.getInt(0);
         Log.d(LOG_TAG, "NUMBER OF DATA IS: " + count);
 
         dbHelper.close();
 
         SetChart();
+        return count;
     }
 
     @Override
