@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -205,7 +206,7 @@ public class StatisticActivity extends AppCompatActivity {
             // Подставить старт ,  стоп тайм и ID эмоции
             // Вернуть данные в виде ?
             // проверка вводимых данных ?
-        onClickQuery("10:00:00", "15:00:00", 0);
+        onClickQuery("10:00:00", "23:00:00", 0);
 
 
         builder.setPositiveButton("OK",
@@ -261,11 +262,18 @@ public class StatisticActivity extends AppCompatActivity {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Log.d(LOG_TAG, "--- Connected EmotionDB: ---");
 
+        String selection;
+        Long count;
+
+        count = DatabaseUtils.queryNumEntries(db, "EmotionDB",
+                "emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime});
+        /*
         c = db.query(
                 "EmotionDB",null,
-                "emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime},
+                "count(*) WHERE emotion =? AND time between ? AND ?", new String[]{String.valueOf(EmotionID),startTime,stopTime},
                 null,null,null);
-
+        c.moveToFirst();
+        /*
         if (c != null) {
             if (c.moveToFirst()) {
                 String str;
@@ -283,6 +291,9 @@ public class StatisticActivity extends AppCompatActivity {
         } else
             Log.d(LOG_TAG, "Cursor is null");
 
+         */
+        //Integer count = c.getInt(0);
+        Log.d(LOG_TAG, "NUMBER OF DATA IS: " + count);
 
 
 
