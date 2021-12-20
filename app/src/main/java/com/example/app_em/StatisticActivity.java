@@ -83,14 +83,43 @@ public class StatisticActivity extends AppCompatActivity {
         {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                String result = emoMap.get(value);
-                if (result == null)
+//                String result = emoMap.get(value);
+//
+//                if (result == null)
+//                {
+//                    return "-";
+//                }
+//                else
+//                {
+//                    return result;
+//                }
+                if (value == 5)
                 {
-                    return "-";
+                    return Emotions.BEST.decode;
+                }
+                else if (value == 4)
+                {
+                    return Emotions.PERFECT.decode;
+                }
+                else if (value == 3)
+                {
+                    return Emotions.GOOD.decode;
+                }
+                else if (value == 2)
+                {
+                    return Emotions.NORMAL.decode;
+                }
+                else if (value == 1)
+                {
+                    return Emotions.SOSO.decode;
+                }
+                else if (value == 0)
+                {
+                    return Emotions.BAD.decode;
                 }
                 else
                 {
-                    return result;
+                    return "";
                 }
             }
         };
@@ -146,6 +175,7 @@ public class StatisticActivity extends AppCompatActivity {
                 if (c.getString(emotion_db) != null && !c.getString(emotion_db).isEmpty()) {
                     Integer emotionInt = c.getInt(emotion_db);
                     emoMap.put(i, getEmotions(c.getInt(emotion_db)));
+                    Log.d(TAG, "======================== " + c.getInt(emotion_db) + " | "+ getEmotions(c.getInt(emotion_db)) );
 
                         dateMap.put(i, c.getString(time_db));
                         Entry entry = new Entry(i, emotionInt);
@@ -177,6 +207,11 @@ public class StatisticActivity extends AppCompatActivity {
         dataSet.setDrawIcons(false);
         dataSet.setForm(Legend.LegendForm.EMPTY);
         dataSet.setLabel("");
+        dataSet.setDrawIcons(false);
+        dataSet.setDrawCircleHole(false);
+        dataSet.setDrawCircles(false);
+        dataSet.setDrawHorizontalHighlightIndicator(false);
+        dataSet.setDrawValues(false);
 
         dataSets.add(dataSet);
     }
@@ -399,27 +434,27 @@ public class StatisticActivity extends AppCompatActivity {
     }
 
     public String getEmotions(Integer code) {
-        if (code == 0)
+        if (code == 5)
         {
             return Emotions.BEST.decode;
         }
-        else if (code == 1)
+        else if (code == 4)
         {
             return Emotions.PERFECT.decode;
         }
-        else if (code == 2)
+        else if (code == 3)
         {
             return Emotions.GOOD.decode;
         }
-        else if (code == 3)
+        else if (code == 2)
         {
             return Emotions.NORMAL.decode;
         }
-        else if (code == 4)
+        else if (code == 1)
         {
             return Emotions.SOSO.decode;
         }
-        else if (code == 5)
+        else if (code == 0)
         {
             return Emotions.BAD.decode;
         }
